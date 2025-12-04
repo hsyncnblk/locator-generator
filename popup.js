@@ -4,7 +4,6 @@ document.getElementById("pick").addEventListener("click", async () => {
   });
 });
 
-// Mesaj dinle
 chrome.runtime.onMessage.addListener((msg) => {
   if (msg.action === "locatorsFound") {
     const result = document.getElementById("result");

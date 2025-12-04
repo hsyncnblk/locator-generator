@@ -46,66 +46,54 @@ chrome.runtime.onMessage.addListener((msg) => {
 });
 
 
-// ------------------------
 // LOCATOR GENERATOR
-// ------------------------
 
 function generateLocators(el) {
   const list = [];
 
   const add = (score, type, value) => list.push({ score, type, value });
 
-  // ID
   if (el.id) add(100, "id", `#${el.id}`);
 
-  // data-test, data-testid, data-qa...
   [...el.attributes].forEach(a => {
     if (a.name.startsWith("data-"))
       add(95, a.name, `[${a.name}="${a.value}"]`);
   });
 
-  // name
   if (el.name) add(90, "name", `[name="${el.name}"]`);
 
-  // aria, title, alt, placeholder
   const strongAttrs = ["aria-label", "alt", "title", "placeholder", "role"];
   strongAttrs.forEach(attr => {
     const v = el.getAttribute(attr);
     if (v) add(85, attr, `${el.tagName.toLowerCase()}[${attr}="${v}"]`);
   });
 
-  // text
   const t = el.textContent.trim();
   if (t && t.length < 60) {
     add(80, "text", `//*[normalize-space(text())="${t}"]`);
     add(75, "text-contains", `//*[contains(., "${t}")]`);
   }
 
-  // classes (dinamik olmayan)
   if (el.classList.length > 0) {
     const stable = [...el.classList].filter(c => !/\d/.test(c));
     if (stable.length > 0)
       add(70, "class", `${el.tagName.toLowerCase()}.${stable.join(".")}`);
   }
 
-  // attribute kombinasyonları
   [...el.attributes].forEach(a => {
     if (!["id", "class"].includes(a.name) && !a.name.startsWith("data-")) {
       add(65, `attr-${a.name}`, `${el.tagName.toLowerCase()}[${a.name}="${a.value}"]`);
     }
   });
 
-  // ebeveyn ilişkisi
   if (el.parentElement) {
     add(40, "parent", `${el.parentElement.tagName.toLowerCase()} ${el.tagName.toLowerCase()}`);
   }
 
-  // sibling
   if (el.previousElementSibling) {
     add(35, "sibling", `//${el.previousElementSibling.tagName.toLowerCase()}/following-sibling::${el.tagName.toLowerCase()}`);
   }
 
-  // full XPath (fallback)
   add(10, "auto-xpath", getFullXPath(el));
 
   return list.sort((a, b) => b.score - a.score);
