@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Locator Generator Pro",
+  "description": "Automatically generates the best locators (ID, CSS, XPath, TestID, text, fallback).",
+  "version": "1.0",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Locator Generator Pro"
+  },
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content-script.js"]
+    }
+  ]
+}
